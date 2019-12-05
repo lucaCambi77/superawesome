@@ -67,22 +67,28 @@ Last but not least: please keep the content of this code challenge confidential 
 
 # Further assumptions
 
-* We assume minimum word length of 2 letters
+* We assume minimum word's length of 2 letters
 * We assume that the file has one word for each line only containing alphabet letters ([a-zA-Z]) with no spaces but can have empty lines.
 * We assume that anagrams is case insensitive
 * We assume that printing order of inner words' group does not matter, all though for testing we use a sorted set otherwise would be impossile to test the output.
 
 # Algorithm
 
-The input file is parsed line by line, then every word is converted to an integer based on mupliplication of single 's letter representation as a prime factor. Now words can be grouped as anagram if they have same product. Time complexity is O(N x M) where M is average length of words in the file. Its range is from 0(N x 2) to O(N X Max(wordLength)). Using a sorted set only for testing avoids an extra O(log(N)) in time complexity.
+The input file is parsed line by line, then every word is converted to an integer based on mupliplication of single's letter representation as a prime factor. Now words can be grouped as anagram if they have same product. Time complexity is O(N x M) where M is average length of words in the file. Its range is from 0(N x 2) to O(N X Max(wordLength)). Using a sorted set only for testing avoids adding an extra O(log(N)) in time complexity
+
+# Testing
+
+Junit5 + Mockito
+Mockito is used to mock System out and verify methods call
 
 # Install and run
 
 You need Java 8 and maven installed.
-From root of the project run 
+From root of the project run one of
 
-	# mvn clean install or mvn clean package
+``` 
+mvn clean install
+mvn clean package 
+```
 
-You can then use the application with :
-
-	# java -jar target/anagrams {path to your file}
+You can then run the application with `java -jar target/anagrams {path to your file}`
