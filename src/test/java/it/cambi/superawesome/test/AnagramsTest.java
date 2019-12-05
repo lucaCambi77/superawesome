@@ -3,22 +3,17 @@
  */
 package it.cambi.superawesome.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -28,7 +23,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import it.cambi.superawesome.domain.TreeSetAnagrams;
 
 /**
  * @author luca
@@ -40,6 +38,10 @@ public class AnagramsTest
 {
     private PrintStream out;
 
+    private @Spy TreeSetAnagrams anagrams = new TreeSetAnagrams();
+
+    private static final String fileDir = "src/test/resources/task/data";
+
     @BeforeEach
     public void setUpStreams()
     {
@@ -48,24 +50,22 @@ public class AnagramsTest
     }
 
     @ParameterizedTest
-    @CsvSource({ "src/main/resources/task/data/example1.txt" })
+    @CsvSource({ fileDir + "/example1.txt" })
     @Order(1)
-    public void testAnagrams(String file) throws IOException
+    public void shouldPassReadFromFile(String file) throws IOException
     {
 
-        InputStream is = new FileInputStream(file);
-        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-
-        String line = buf.readLine();
-
-        while (line != null)
+        try (BufferedReader buf = new BufferedReader(new FileReader(file)))
         {
-            System.out.println(line);
-            line = buf.readLine();
+            String line = buf.readLine();
 
+            while (line != null)
+            {
+                System.out.println(line);
+                line = buf.readLine();
+
+            }
         }
-
-        buf.close();
 
         verify(out).println("abc");
         verify(out, times(2)).println("fun");
@@ -76,108 +76,89 @@ public class AnagramsTest
 
     }
 
-    private HashMap<BigInteger, TreeSet<String>> resultMap = new HashMap<>();
-
-    @SuppressWarnings("serial")
-    private Map<Character, Integer> alphabetMap = new HashMap<Character, Integer>()
-    {
-        {
-
-            put('a', 2);
-            put('b', 3);
-            put('c', 5);
-            put('d', 7);
-            put('e', 11);
-            put('f', 13);
-            put('g', 17);
-            put('h', 19);
-            put('i', 23);
-            put('j', 29);
-            put('k', 31);
-            put('l', 37);
-            put('m', 41);
-            put('n', 43);
-            put('o', 47);
-            put('p', 53);
-            put('q', 59);
-            put('r', 61);
-            put('s', 67);
-            put('t', 71);
-            put('u', 73);
-            put('v', 79);
-            put('w', 83);
-            put('x', 89);
-            put('y', 97);
-            put('z', 101);
-
-        }
-    };
-
     @ParameterizedTest
-    @ValueSource(strings = { "src/main/resources/task/data/example1.txt" })
+    @ValueSource(strings = { fileDir + "/example1.txt" })
     @Order(2)
-    public void testAnagrams2(String file) throws IOException
+    public void shouldPassExample1CheckCorrectOutput(String file) throws IOException, InstantiationException, IllegalAccessException
     {
 
-        InputStream is = new FileInputStream(file);
-        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-
-        String line = buf.readLine();
-
-        checkLine(line);
-
-        int currentLength = line.length();
-
-        while (line != null)
-        {
-            if (line.toCharArray().length > currentLength)
-            {
-                flush(resultMap);
-                currentLength = line.toCharArray().length;
-                resultMap = new HashMap<>();
-            }
-
-            checkLine(line);
-
-            line = buf.readLine();
-
-        }
-
-        flush(resultMap);
-
-        buf.close();
+        anagrams.groupFromInput(file);
 
         verify(out).println("fun,unf");
         verify(out).println("abc,bac,cba");
         verify(out).println("hello");
+        assertEquals(2, anagrams.getGroups());
+
     }
 
-    /**
-     * @param line
-     * @return
-     */
-    private void checkLine(String line)
+    @ParameterizedTest
+    @ValueSource(strings = { fileDir + "/example1.txt" })
+    @Order(3)
+    public void shouldPassExample1(String file) throws IOException, InstantiationException, IllegalAccessException
     {
-        AtomicReference<BigInteger> valueHolder = new AtomicReference<>();
-        valueHolder.set(new BigInteger("1"));
 
-        line.chars().forEach(c -> {
-            valueHolder.getAndAccumulate(BigInteger.valueOf(alphabetMap.get((char) c)), (previous, x) -> previous.multiply(x));
-        });
+        anagrams.groupFromInput(file);
 
-        TreeSet<String> set = resultMap.getOrDefault(valueHolder.get(), new TreeSet<String>());
-        set.add(line);
-        resultMap.put(valueHolder.get(), set);
+        verify(out, times(3)).println(anyString());
+        verify(anagrams, times(1)).flush();
+
     }
 
-    /**
-     * @param map1
-     * 
-     */
-    private void flush(HashMap<BigInteger, TreeSet<String>> map1)
+    @ParameterizedTest
+    @ValueSource(strings = { fileDir + "/example2.txt" })
+    @Order(4)
+    public void shouldPassExample2(String file) throws IOException, InstantiationException, IllegalAccessException
     {
-        map1.entrySet().forEach(m -> {
-            System.out.println(m.getValue().stream().collect(Collectors.joining(",")));
+
+        anagrams.groupFromInput(file);
+
+        verify(out, times(156476)).println(anyString());
+        verify(anagrams, times(1)).flush();
+
+        assertEquals(26, anagrams.getGroups());
+    }
+
+    @ParameterizedTest
+    @Order(5)
+    @ValueSource(strings = { fileDir + "/longestAnagram.txt" })
+    public void shouldPassLongestAnagram(String file) throws IOException, InstantiationException, IllegalAccessException
+    {
+
+        anagrams.groupFromInput(file);
+
+        verify(out, times(1)).println("hydroxydeoxycorticosterones,hydroxydesoxycorticosterone");
+        verify(anagrams, times(1)).flush();
+
+    }
+
+    @ParameterizedTest
+    @Order(6)
+    @ValueSource(strings = { fileDir + "/caseSensitive.txt" })
+    public void shouldPassCaseSensitiveWithEmptyLines(String file) throws IOException, InstantiationException, IllegalAccessException
+    {
+
+        anagrams.groupFromInput(file);
+
+        verify(out, times(1)).println("Hello,hello");
+        verify(anagrams, times(1)).flush();
+
+    }
+
+    @ParameterizedTest
+    @Order(7)
+    @CsvSource({ fileDir + "/empty.txt," + fileDir + "/oneLetterWord.txt" })
+    public void shouldFailOnEmptyOrOneLetterWordFile(String empty, String oneLetterWord) throws IOException
+    {
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            anagrams.groupFromInput(empty);
         });
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            anagrams.groupFromInput(oneLetterWord);
+        });
+
+        verify(anagrams, times(0)).flush();
+
     }
 }

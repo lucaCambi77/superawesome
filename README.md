@@ -61,3 +61,28 @@ Do not submit binaries, libs (e.g.: node_modules), test results and other autoge
 Last but not least: please keep the content of this code challenge confidential do not share it online not even in an anonymous form (aka: no github public repo please!)
 
 ## GOOD LUCK!
+
+
+## Solution
+
+# Further assumptions
+
+* We assume minimum word length of 2 letters
+* We assume that the file has one word for each line only containing alphabet letters ([a-zA-Z]) with no spaces but can have empty lines.
+* We assume that anagrams is case insensitive
+* We assume that printing order of inner words' group does not matter, all though for testing we use a sorted set otherwise would be impossile to test the output.
+
+# Algorithm
+
+The input file is parsed line by line, then every word is converted to an integer based on mupliplication of single 's letter representation as a prime factor. Now words can be grouped as anagram if they have same product. Time complexity is O(N x M) where M is average length of words in the file. Its range is from 0(N x 2) to O(N X Max(wordLength)). Using a sorted set only for testing avoids an extra O(log(N)) in time complexity.
+
+# Install and run
+
+You need Java 8 and maven installed.
+From root of the project run 
+
+	# mvn clean install or mvn clean package
+
+You can then use the application with :
+
+	# java -jar target/anagrams {path to your file}
