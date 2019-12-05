@@ -79,7 +79,7 @@ public class AnagramsTest
     @ParameterizedTest
     @ValueSource(strings = { fileDir + "/example1.txt" })
     @Order(2)
-    public void shouldPassExample1CheckCorrectOutput(String file) throws IOException, InstantiationException, IllegalAccessException
+    public void shouldPassExample1(String file) throws IOException, InstantiationException, IllegalAccessException
     {
 
         anagrams.groupFromInput(file);
@@ -87,18 +87,8 @@ public class AnagramsTest
         verify(out).println("fun,unf");
         verify(out).println("abc,bac,cba");
         verify(out).println("hello");
+
         assertEquals(2, anagrams.getGroups());
-
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { fileDir + "/example1.txt" })
-    @Order(3)
-    public void shouldPassExample1(String file) throws IOException, InstantiationException, IllegalAccessException
-    {
-
-        anagrams.groupFromInput(file);
-
         verify(out, times(3)).println(anyString());
         verify(anagrams, times(1)).flush();
 
@@ -106,7 +96,7 @@ public class AnagramsTest
 
     @ParameterizedTest
     @ValueSource(strings = { fileDir + "/example2.txt" })
-    @Order(4)
+    @Order(3)
     public void shouldPassExample2(String file) throws IOException, InstantiationException, IllegalAccessException
     {
 
@@ -119,7 +109,7 @@ public class AnagramsTest
     }
 
     @ParameterizedTest
-    @Order(5)
+    @Order(4)
     @ValueSource(strings = { fileDir + "/longestAnagram.txt" })
     public void shouldPassLongestAnagram(String file) throws IOException, InstantiationException, IllegalAccessException
     {
@@ -132,7 +122,7 @@ public class AnagramsTest
     }
 
     @ParameterizedTest
-    @Order(6)
+    @Order(5)
     @ValueSource(strings = { fileDir + "/caseSensitive.txt" })
     public void shouldPassCaseSensitiveWithEmptyLines(String file) throws IOException, InstantiationException, IllegalAccessException
     {
@@ -145,7 +135,7 @@ public class AnagramsTest
     }
 
     @ParameterizedTest
-    @Order(7)
+    @Order(6)
     @CsvSource({ fileDir + "/empty.txt," + fileDir + "/oneLetterWord.txt" })
     public void shouldFailOnEmptyOrOneLetterWordFile(String empty, String oneLetterWord) throws IOException
     {
